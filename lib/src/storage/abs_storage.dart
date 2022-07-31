@@ -1,7 +1,6 @@
-
-
 abstract class AbsStorage {
-  Future<String> getLastUpdate();
+
+  Future<String> getLatestUpdate();
 
   Future<List<String>> getFromRange(int start, int end);
 
