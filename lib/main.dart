@@ -1,60 +1,85 @@
-import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
-import 'package:paste_man/src/paste/observer/paste_observer.dart';
+import 'package:clipboard/clipboard.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(PasteCat());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
+class PasteCat extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Welcome to Flutter',
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Hello World'),
-        ),
-        body: const Center(
-          child: RandomWords(),
-        ),
+      title: 'PasteCat',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
+      home: PasteCatHomePage(),
     );
   }
 }
 
-class RandomWords extends StatefulWidget {
-  const RandomWords({Key? key}) : super(key: key);
-
+class PasteCatHomePage extends StatefulWidget {
   @override
-  State<RandomWords> createState() => _RandomWordsState();
+  _PasteCatHomePageState createState() => _PasteCatHomePageState();
 }
 
-class _RandomWordsState extends State<RandomWords> {
-  final _suggestions = <WordPair>[];
-  final _biggerFont = const TextStyle(fontSize: 18.0);
-
-  final _pasteObserver = PasteObserver();
+class _PasteCatHomePageState extends State<PasteCatHomePage> {
+  String clipboardContent = '';
+  TextEditingController textController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      padding: const EdgeInsets.all(16.0),
-      itemBuilder: /*1*/ (context, i) {
-        if (i.isOdd) return const Divider();/*2*/
-        final index = i ~/ 2; /*3*/
-        if (index >= _suggestions.length) {
-          _suggestions.addAll(generateWordPairs().take(10)); /*4*/
-        }
-        return ListTile(
-          title: Text(
-            _suggestions[index].asPascalCase,
-            style: _biggerFont,
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('PasteCat'),
+      ),
+      body: Center(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.network(
+                  'https://cdn.midjourney.com/73ce2612-cbf8-4aad-ae77-66358eaac62b/0_1.webp',
+                  width: 150,
+                ),
+                SizedBox(height: 16),
+                Text(
+                  'PasteCat',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 16),
+                TextFormField(
+                  controller: textController,
+                  decoration: InputDecoration(
+                    labelText: 'Enter text',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    FlutterClipboard.copy(textController.text);
+                  },
+                  child: Text('Copy to Clipboard'),
+                ),
+                SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () async {
+                    String clipboardText = await FlutterClipboard.paste();
+                    setState(() {
+                      textController.text = clipboardText;
+                    });
+                  },
+                  child: Text('Paste from Clipboard'),
+                ),
+              ],
+            ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 }
